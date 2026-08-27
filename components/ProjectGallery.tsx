@@ -106,6 +106,7 @@ export default function ProjectGallery() {
                 className={`gallery-item ${isHidden ? 'hidden' : ''}`}
                 data-cat={item.category}
                 style={{ backgroundImage: `url('${item.imageUrl}')` }}
+                aria-hidden={isHidden}
               >
                 <span className="tag">{item.tag}</span>
               </div>
