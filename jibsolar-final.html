@@ -1,0 +1,989 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Jibsolar — Rooftop Solar for Indian Homes &amp; Businesses</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --forest-950:#04140f;
+    --forest-900:#083a29;
+    --forest-800:#0d5138;
+    --forest-700:#146b48;
+    --gold:#f2a71f;
+    --gold-soft:#ffce6d;
+    --sky:#17b3a3;
+    --sky-soft:#7fe3d1;
+    --ink:#0c1e16;
+    --paper:#faf7ee;
+    --paper-dim:#f0ebdc;
+    --line:rgba(12,30,22,0.1);
+    --line-dark:rgba(255,255,255,0.12);
+    --muted:#54615a;
+    --muted-dark:#a9cabb;
+    --radius:18px;
+    --maxw:1240px;
+  }
+  *{box-sizing:border-box;}
+  html{scroll-behavior:smooth;}
+  body{margin:0;background:var(--paper);color:var(--ink);font-family:'Inter',sans-serif;-webkit-font-smoothing:antialiased;overflow-x:hidden;}
+  h1,h2,h3,h4{font-family:'Sora',sans-serif;margin:0;letter-spacing:-0.01em;color:var(--forest-950);}
+  p{margin:0;color:var(--muted);line-height:1.65;}
+  a{color:inherit;text-decoration:none;}
+  img{max-width:100%;display:block;}
+  button{font-family:inherit;}
+  a:focus-visible,button:focus-visible,input:focus-visible{outline:3px solid var(--sky);outline-offset:3px;}
+  .wrap{max-width:var(--maxw);margin:0 auto;padding:0 32px;}
+  .eyebrow{font-family:'JetBrains Mono',monospace;font-size:12px;letter-spacing:0.14em;text-transform:uppercase;color:var(--forest-700);display:inline-flex;align-items:center;gap:10px;font-weight:600;margin-bottom:16px;}
+  .eyebrow::before{content:"";width:7px;height:7px;background:var(--gold);border-radius:50%;box-shadow:0 0 0 4px rgba(245,166,35,0.18);}
+  .light-on-dark .eyebrow{color:var(--gold-soft);}
+  .light-on-dark h2, .light-on-dark h3, .light-on-dark h4{color:#fff;}
+  .light-on-dark p{color:var(--muted-dark);}
+  ::selection{background:var(--gold);color:var(--forest-950);}
+  @media (prefers-reduced-motion: reduce){*{animation-duration:0.01ms !important;animation-iteration-count:1 !important;transition-duration:0.01ms !important;scroll-behavior:auto !important;}}
+
+  .btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;padding:14px 26px;border-radius:999px;font-weight:600;font-size:14.5px;cursor:pointer;border:1px solid transparent;transition:transform .25s ease, box-shadow .25s ease, border-color .25s ease, background .25s ease, color .25s ease;white-space:nowrap;}
+  .btn:focus-visible{outline:3px solid var(--sky);outline-offset:2px;}
+  .btn-primary{background:linear-gradient(135deg,var(--gold),var(--gold-soft));color:var(--forest-950);box-shadow:0 10px 24px -8px rgba(245,166,35,0.55);}
+  .btn-primary:hover{transform:translateY(-2px);box-shadow:0 14px 28px -8px rgba(245,166,35,0.65);}
+  .btn-ghost-dark{background:transparent;border-color:rgba(255,255,255,0.28);color:#fff;}
+  .btn-ghost-dark:hover{border-color:var(--gold-soft);color:var(--gold-soft);transform:translateY(-2px);}
+  .btn-ghost-light{background:transparent;border-color:var(--line);color:var(--forest-950);}
+  .btn-ghost-light:hover{border-color:var(--forest-900);transform:translateY(-2px);}
+  .btn-block{width:100%;}
+
+  /* Nav */
+  header{position:fixed;top:0;left:0;right:0;z-index:100;padding:18px 0;transition:background .35s ease,padding .35s ease,border-color .35s ease;border-bottom:1px solid transparent;}
+  header.scrolled{background:rgba(6,35,26,0.92);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);padding:12px 0;border-color:rgba(255,255,255,0.08);}
+  nav{display:flex;align-items:center;justify-content:space-between;gap:20px;}
+  .brand{display:flex;align-items:center;gap:11px;}
+  .brand-logo-img{width:168px;height:56px;display:block;object-fit:contain;object-position:center;border-radius:6px;background:#fff;}
+  .brand-logo-img-footer{width:190px;height:64px;}
+  .brand-fallback{display:none !important;font-family:'Sora',sans-serif !important;font-size:20px !important;font-weight:700;color:#fff !important;letter-spacing:-0.02em !important;text-transform:none !important;}
+  .brand b{font-family:'Sora',sans-serif;font-size:18px;letter-spacing:0.02em;color:#fff;}
+  .brand span{display:block;font-family:'JetBrains Mono',monospace;font-size:9.5px;letter-spacing:0.1em;text-transform:uppercase;color:var(--sky-soft);}
+  .nav-links{display:flex;gap:30px;align-items:center;}
+  .nav-links a{font-size:14px;font-weight:500;color:rgba(255,255,255,0.72);position:relative;padding:6px 0;transition:color .2s ease;}
+  .nav-links a::after{content:"";position:absolute;left:0;bottom:0;height:2px;width:0;background:var(--gold);transition:width .25s ease;}
+  .nav-links a:hover{color:#fff;}
+  .nav-links a:hover::after{width:100%;}
+  .nav-right{display:flex;align-items:center;gap:12px;}
+  .btn-outline-small{font-size:13.5px;padding:11px 18px;border-radius:999px;border:1px solid rgba(255,255,255,0.22);color:#fff;}
+  .btn-outline-small:hover{border-color:var(--sky-soft);color:var(--sky-soft);}
+  .menu-btn{display:none;background:none;border:1px solid rgba(255,255,255,0.28);color:#fff;width:42px;height:42px;border-radius:10px;cursor:pointer;z-index:200;position:relative;}
+  .mobile-panel{position:fixed;inset:0;z-index:150;background:rgba(6,35,26,0.98);backdrop-filter:blur(16px);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:28px;opacity:0;pointer-events:none;transition:opacity .3s ease;}
+  .mobile-panel.open{opacity:1;pointer-events:auto;}
+  .mobile-panel a{font-family:'Sora',sans-serif;font-size:24px;color:#fff;}
+  .mobile-panel .btn{margin-top:10px;}
+
+  /* Hero */
+  .hero{position:relative;padding:172px 0 100px;overflow:hidden;isolation:isolate;background:linear-gradient(180deg,#06231a 0%,#0b3d2e 55%,#124a37 100%);}
+  .hero-photo{position:absolute;inset:0;z-index:0;background-size:cover;background-position:center;opacity:0.4;}
+  .hero::after{content:"";position:absolute;inset:0;z-index:0;background:linear-gradient(180deg, rgba(6,35,26,0.55) 0%, rgba(6,35,26,0.88) 75%, #06231a 100%);pointer-events:none;}
+  .hero-inner{position:relative;z-index:2;max-width:720px;}
+  .hero h1{font-size:clamp(38px,5.4vw,62px);color:#fff;line-height:1.08;margin-bottom:22px;font-weight:700;}
+  .hero h1 em{font-style:normal;background:linear-gradient(100deg,var(--gold-soft),var(--gold) 55%, var(--sky-soft));-webkit-background-clip:text;background-clip:text;color:transparent;}
+  .hero p.lead{color:var(--muted-dark);font-size:17.5px;max-width:560px;margin-bottom:34px;}
+  .hero-cta{display:flex;gap:16px;flex-wrap:wrap;margin-bottom:40px;}
+  .hero-bullets{display:flex;flex-wrap:wrap;gap:12px;}
+  .hero-bullets span{font-size:12.5px;color:var(--muted-dark);padding:8px 16px;border-radius:999px;border:1px solid rgba(255,255,255,0.16);background:rgba(255,255,255,0.04);display:inline-flex;align-items:center;gap:8px;}
+  .hero-bullets span::before{content:"";width:6px;height:6px;border-radius:50%;background:var(--gold);}
+
+  /* Segments */
+  .segments{padding:110px 0 90px;}
+  .section-head{max-width:640px;margin-bottom:52px;}
+  .section-head h2{font-size:clamp(28px,3.6vw,42px);line-height:1.14;margin-bottom:14px;}
+  .section-head p{font-size:16px;}
+  .seg-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:22px;}
+  .seg-card{position:relative;border-radius:var(--radius);overflow:hidden;aspect-ratio:4/5;display:flex;flex-direction:column;justify-content:flex-end;padding:26px;color:#fff;background-size:cover;background-position:center;}
+  .seg-card::before{content:"";position:absolute;inset:0;background:linear-gradient(180deg, rgba(6,35,26,0.1) 30%, rgba(6,35,26,0.92) 100%);}
+  .seg-card *{position:relative;z-index:1;}
+  .seg-card h3{color:#fff;font-size:21px;margin-bottom:8px;}
+  .seg-card p{color:rgba(255,255,255,0.75);font-size:14px;margin-bottom:14px;}
+  .seg-card a{font-size:13.5px;font-weight:600;color:var(--gold-soft);display:inline-flex;align-items:center;gap:6px;}
+
+  /* Calculator */
+  .calc-section{padding:100px 0;background:var(--forest-950);position:relative;}
+  .calc-section::before{content:"";position:absolute;inset:0;background-image:radial-gradient(rgba(255,255,255,0.045) 1px, transparent 1px);background-size:26px 26px;opacity:0.5;pointer-events:none;}
+  .calc-grid{position:relative;z-index:1;display:grid;grid-template-columns:1fr 1fr;gap:56px;align-items:start;}
+  .calc-panel{background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.12);border-radius:24px;padding:34px;backdrop-filter:blur(6px);}
+  .calc-field{margin-bottom:26px;}
+  .calc-field label{display:flex;justify-content:space-between;align-items:baseline;font-size:13.5px;color:var(--muted-dark);margin-bottom:12px;font-family:'JetBrains Mono',monospace;letter-spacing:0.02em;}
+  .calc-field label b{font-family:'Sora',sans-serif;font-size:19px;color:#fff;letter-spacing:0;}
+  input[type=range]{width:100%;height:6px;border-radius:999px;background:rgba(255,255,255,0.14);appearance:none;outline:none;}
+  input[type=range]::-webkit-slider-thumb{appearance:none;width:20px;height:20px;border-radius:50%;background:var(--gold);border:3px solid var(--forest-950);box-shadow:0 0 0 2px var(--gold);cursor:pointer;}
+  input[type=range]::-moz-range-thumb{width:20px;height:20px;border-radius:50%;background:var(--gold);border:3px solid var(--forest-950);box-shadow:0 0 0 2px var(--gold);cursor:pointer;}
+  .range-minmax{display:flex;justify-content:space-between;font-size:11px;color:var(--muted-dark);margin-top:8px;}
+  .seg-toggle{display:flex;gap:8px;margin-bottom:8px;}
+  .seg-toggle button{flex:1;padding:11px;border-radius:10px;border:1px solid rgba(255,255,255,0.14);background:rgba(255,255,255,0.03);color:var(--muted-dark);font-size:13.5px;font-weight:600;cursor:pointer;transition:all .2s ease;}
+  .seg-toggle button.active{background:var(--gold);color:var(--forest-950);border-color:var(--gold);}
+  .calc-result{background:linear-gradient(160deg, rgba(245,166,35,0.1), rgba(58,169,214,0.06));border:1px solid rgba(255,255,255,0.14);border-radius:24px;padding:34px;}
+  .arc-wrap{display:flex;justify-content:center;margin-bottom:8px;}
+  .result-row{display:flex;justify-content:space-between;align-items:center;padding:14px 0;border-bottom:1px solid rgba(255,255,255,0.08);}
+  .result-row:last-child{border-bottom:none;}
+  .result-row span{font-size:13.5px;color:var(--muted-dark);}
+  .result-row b{font-family:'JetBrains Mono',monospace;font-size:17px;color:#fff;}
+  .result-row b.hl{color:var(--gold-soft);font-size:22px;}
+  .calc-note{font-size:12px;color:var(--muted-dark);margin-top:18px;line-height:1.6;}
+
+  /* Why us */
+  .why{padding:110px 0;}
+  .why-layout{display:grid;grid-template-columns:0.85fr 1.15fr;gap:48px;align-items:start;}
+  .why-photo{position:relative;border-radius:var(--radius);overflow:hidden;aspect-ratio:3/4;background-size:cover;background-position:center;}
+  .why-photo::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg, rgba(4,20,15,0.05) 40%, rgba(4,20,15,0.85) 100%);}
+  .why-photo-badge{position:absolute;left:20px;bottom:20px;right:20px;z-index:1;color:#fff;}
+  .why-photo-badge b{display:block;font-family:'Sora',sans-serif;font-size:30px;}
+  .why-photo-badge span{font-size:12.5px;color:var(--muted-dark);font-family:'JetBrains Mono',monospace;}
+  .why-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:20px;}
+  .why-card{background:#fff;border:1px solid var(--line);border-radius:var(--radius);padding:30px 24px;transition:transform .3s ease, box-shadow .3s ease;}
+  .why-card:hover{transform:translateY(-6px);box-shadow:0 24px 50px -20px rgba(11,31,24,0.18);}
+  .why-icon{width:46px;height:46px;border-radius:12px;background:linear-gradient(135deg,var(--forest-900),var(--forest-700));display:flex;align-items:center;justify-content:center;margin-bottom:18px;}
+  .why-icon svg{width:22px;height:22px;stroke:var(--gold-soft);}
+  .why-card h3{font-size:17px;margin-bottom:8px;}
+  .why-card p{font-size:13.5px;}
+
+  /* Assurance */
+  .assurance{padding:0 0 110px;}
+  .assurance-panel{background-image:linear-gradient(115deg, rgba(4,20,15,0.94) 0%, rgba(8,58,41,0.85) 55%, rgba(8,58,41,0.55) 100%), url('https://images.unsplash.com/photo-1745187946672-2c1d8cf26a2b?q=80&amp;w=1400&amp;auto=format&amp;fit=crop');background-size:cover;background-position:center;border-radius:28px;padding:56px;display:grid;grid-template-columns:1.3fr 1fr;gap:48px;align-items:center;position:relative;overflow:hidden;isolation:isolate;}
+  .assurance-panel::before{content:"";position:absolute;right:-70px;top:-70px;width:280px;height:280px;border-radius:50%;background:radial-gradient(circle, rgba(245,166,35,0.22), transparent 70%);z-index:-1;}
+  .assurance-panel h2{color:#fff;font-size:clamp(26px,3.2vw,36px);margin-bottom:16px;}
+  .assurance-panel p{color:var(--muted-dark);font-size:15.5px;margin-bottom:24px;max-width:460px;}
+  .cert-card{background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.14);border-radius:16px;padding:26px;}
+  .cert-card h4{color:#fff;font-size:13px;font-family:'JetBrains Mono',monospace;letter-spacing:0.06em;text-transform:uppercase;margin-bottom:16px;}
+  .cert-list{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:11px;}
+  .cert-list li{display:flex;gap:10px;align-items:flex-start;font-size:13.5px;color:var(--muted-dark);}
+  .cert-list svg{width:16px;height:16px;stroke:var(--gold-soft);flex-shrink:0;margin-top:2px;}
+
+  /* Process */
+  .process{padding:110px 0;background:var(--paper-dim);}
+  .process-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:20px;}
+  .process-card{background:#fff;border:1px solid var(--line);border-radius:var(--radius);padding:28px 24px;position:relative;}
+  .process-num{width:38px;height:38px;border-radius:50%;border:1px solid rgba(245,166,35,0.5);display:flex;align-items:center;justify-content:center;font-family:'JetBrains Mono',monospace;font-size:13px;color:var(--gold);margin-bottom:20px;background:#fff;}
+  .process-card h3{font-size:18px;margin-bottom:10px;}
+  .process-card p{font-size:13.5px;}
+  .process-line{position:absolute;top:38px;left:100%;width:20px;height:1px;background:repeating-linear-gradient(90deg, rgba(245,166,35,0.5) 0 6px, transparent 6px 10px);display:none;}
+  @media (min-width:1081px){ .process-card:not(:last-child) .process-line{display:block;} }
+  .process-banner{margin-top:20px;border-radius:var(--radius);background-size:cover;background-position:center;min-height:180px;display:flex;align-items:flex-end;padding:26px;}
+  .process-banner span{color:#fff;font-family:'Sora',sans-serif;font-size:18px;max-width:380px;}
+
+  /* Testimonials */
+  .testi{padding:110px 0;}
+  .testi-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:22px;}
+  .testi-card{background:#fff;border:1px solid var(--line);border-radius:var(--radius);overflow:hidden;}
+  .testi-photo{aspect-ratio:16/10;background-size:cover;background-position:center;}
+  .testi-body{padding:24px;}
+  .testi-body h4{font-size:15.5px;margin-bottom:2px;}
+  .testi-loc{font-size:12px;color:var(--muted);font-family:'JetBrains Mono',monospace;margin-bottom:14px;display:block;}
+  .testi-quote{font-size:14px;color:var(--ink);line-height:1.6;margin-bottom:18px;}
+  .testi-quote::before{content:"\201C";color:var(--gold);font-family:'Sora',sans-serif;font-size:22px;margin-right:2px;}
+  .testi-nums{display:flex;gap:20px;padding-top:14px;border-top:1px solid var(--line);}
+  .testi-nums div span{display:block;font-size:11px;color:var(--muted);}
+  .testi-nums div b{font-family:'JetBrains Mono',monospace;font-size:16px;}
+  .testi-nums div.before b{color:#b5493f;}
+  .testi-nums div.after b{color:var(--forest-800);}
+
+  /* Gallery */
+  .gallery{padding:0 0 110px;}
+  .filter-tabs{display:flex;gap:10px;margin-bottom:32px;flex-wrap:wrap;}
+  .filter-tabs button{padding:10px 20px;border-radius:999px;border:1px solid var(--line);background:#fff;color:var(--muted);font-size:13.5px;font-weight:600;cursor:pointer;transition:all .2s ease;}
+  .filter-tabs button.active{background:var(--forest-900);color:#fff;border-color:var(--forest-900);}
+  .gallery-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:18px;}
+  .gallery-item{position:relative;border-radius:14px;overflow:hidden;aspect-ratio:4/3;background-size:cover;background-position:center;transition:transform .3s ease;}
+  .gallery-item:hover{transform:scale(1.02);}
+  .gallery-item .tag{position:absolute;bottom:12px;left:12px;background:rgba(6,35,26,0.75);color:#fff;font-family:'JetBrains Mono',monospace;font-size:11px;padding:6px 12px;border-radius:999px;border:1px solid rgba(255,255,255,0.16);}
+  .gallery-item.hidden{display:none;}
+
+  /* Monitoring */
+  .monitor{padding:110px 0;background:var(--forest-950);}
+  .monitor-grid{display:grid;grid-template-columns:1fr 0.9fr;gap:56px;align-items:center;}
+  .monitor ul{list-style:none;margin:26px 0 0;padding:0;display:flex;flex-direction:column;gap:14px;}
+  .monitor ul li{display:flex;gap:12px;align-items:flex-start;font-size:15px;color:var(--muted-dark);}
+  .monitor ul svg{width:18px;height:18px;stroke:var(--gold-soft);flex-shrink:0;margin-top:3px;}
+  .phone-mock{background:linear-gradient(160deg, rgba(255,255,255,0.06), rgba(255,255,255,0.02));border:1px solid rgba(255,255,255,0.14);border-radius:26px;padding:26px;max-width:340px;margin:0 auto;}
+  .phone-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:22px;}
+  .phone-head span{font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--sky-soft);letter-spacing:0.08em;text-transform:uppercase;}
+  .phone-stat{text-align:center;padding:18px 0;}
+  .phone-stat b{display:block;font-family:'Sora',sans-serif;font-size:38px;color:#fff;}
+  .phone-stat span{font-size:12.5px;color:var(--muted-dark);}
+  .phone-row{display:flex;justify-content:space-between;padding:14px 0;border-top:1px solid rgba(255,255,255,0.08);font-size:13px;color:var(--muted-dark);}
+  .phone-row b{color:#fff;font-family:'JetBrains Mono',monospace;}
+
+  /* Subsidy */
+  .subsidy{padding:110px 0;}
+  .subsidy-grid{display:grid;grid-template-columns:1fr 1fr;gap:56px;align-items:start;}
+  .subsidy-steps{display:flex;flex-direction:column;gap:22px;margin-top:28px;}
+  .subsidy-step{display:flex;gap:16px;}
+  .subsidy-step .n{width:34px;height:34px;border-radius:50%;background:var(--forest-900);color:#fff;display:flex;align-items:center;justify-content:center;font-family:'JetBrains Mono',monospace;font-size:13px;flex-shrink:0;}
+  .subsidy-step h4{font-size:15.5px;margin-bottom:4px;}
+  .subsidy-step p{font-size:13.5px;}
+  .subsidy-table{background:#fff;border:1px solid var(--line);border-radius:var(--radius);overflow:hidden;}
+  .subsidy-table table{width:100%;border-collapse:collapse;}
+  .subsidy-table th,.subsidy-table td{padding:16px 22px;text-align:left;font-size:14.5px;}
+  .subsidy-table th{background:var(--forest-900);color:#fff;font-family:'JetBrains Mono',monospace;font-size:12px;letter-spacing:0.04em;text-transform:uppercase;font-weight:500;}
+  .subsidy-table td{border-top:1px solid var(--line);color:var(--ink);}
+  .subsidy-table td b{color:var(--forest-800);}
+  .subsidy-foot{padding:16px 22px;font-size:12px;color:var(--muted);border-top:1px solid var(--line);}
+
+  /* Comparison */
+  .compare{padding:0 0 110px;}
+  .compare-table{width:100%;border-collapse:collapse;background:#fff;border-radius:var(--radius);overflow:hidden;border:1px solid var(--line);}
+  .compare-table th,.compare-table td{padding:18px 20px;text-align:left;font-size:14px;border-bottom:1px solid var(--line);}
+  .compare-table th{font-family:'JetBrains Mono',monospace;font-size:11.5px;letter-spacing:0.05em;text-transform:uppercase;color:var(--muted);font-weight:600;background:var(--paper-dim);}
+  .compare-table th.hl, .compare-table td.hl{background:rgba(245,166,35,0.08);}
+  .compare-table td.hl{font-weight:600;color:var(--forest-800);}
+  .compare-table tr:last-child td{border-bottom:none;}
+
+  /* Press */
+  .press{padding:60px 0;border-top:1px solid var(--line);border-bottom:1px solid var(--line);}
+  .press-label{text-align:center;font-family:'JetBrains Mono',monospace;font-size:11.5px;letter-spacing:0.1em;text-transform:uppercase;color:var(--muted);margin-bottom:30px;}
+  .press-row{display:flex;justify-content:center;gap:48px;flex-wrap:wrap;align-items:center;}
+  .press-row span{font-family:'Sora',sans-serif;font-weight:600;font-size:16px;color:var(--muted);opacity:0.7;}
+
+  /* FAQ */
+  .faq{padding:110px 0;}
+  .faq-cats{display:flex;gap:10px;margin-bottom:32px;flex-wrap:wrap;}
+  .faq-cats button{padding:10px 18px;border-radius:999px;border:1px solid var(--line);background:#fff;color:var(--muted);font-size:13px;font-weight:600;cursor:pointer;}
+  .faq-cats button.active{background:var(--forest-900);color:#fff;border-color:var(--forest-900);}
+  .faq-list{max-width:760px;}
+  .faq-item{border-bottom:1px solid var(--line);}
+  .faq-q{width:100%;display:flex;justify-content:space-between;align-items:center;padding:22px 0;background:none;border:none;text-align:left;font-family:'Sora',sans-serif;font-size:16px;font-weight:600;color:var(--forest-950);cursor:pointer;gap:20px;}
+  .faq-q .plus{width:24px;height:24px;flex-shrink:0;position:relative;}
+  .faq-q .plus::before, .faq-q .plus::after{content:"";position:absolute;background:var(--forest-900);transition:transform .25s ease;}
+  .faq-q .plus::before{left:0;top:50%;width:100%;height:2px;transform:translateY(-50%);}
+  .faq-q .plus::after{top:0;left:50%;width:2px;height:100%;transform:translateX(-50%);}
+  .faq-item.open .plus::after{transform:translateX(-50%) rotate(90deg);opacity:0;}
+  .faq-a{max-height:0;overflow:hidden;transition:max-height .3s ease;}
+  .faq-item.open .faq-a{max-height:220px;}
+  .faq-a p{padding:0 0 22px;font-size:14.5px;max-width:640px;}
+  .faq-item.hidden{display:none;}
+
+  /* Final CTA */
+  .final-cta{padding:0 0 110px;}
+  .final-panel{background:linear-gradient(135deg,var(--forest-950) 0%, var(--forest-800) 100%);border-radius:28px;padding:70px 60px;text-align:center;position:relative;overflow:hidden;isolation:isolate;}
+  .final-panel::before{content:"";position:absolute;left:-80px;bottom:-80px;width:300px;height:300px;border-radius:50%;background:radial-gradient(circle, rgba(58,169,214,0.2), transparent 70%);z-index:-1;}
+  .final-panel h2{color:#fff;font-size:clamp(28px,3.6vw,42px);max-width:600px;margin:0 auto 16px;}
+  .final-panel p{color:var(--muted-dark);max-width:460px;margin:0 auto 32px;}
+  .final-actions{display:flex;gap:16px;justify-content:center;flex-wrap:wrap;}
+
+  /* Footer */
+  footer{background:var(--forest-950);padding:70px 0 28px;color:var(--muted-dark);}
+  .footer-top{display:grid;grid-template-columns:1.4fr repeat(3,1fr);gap:40px;padding-bottom:44px;border-bottom:1px solid rgba(255,255,255,0.08);}
+  .footer-brand p{font-size:14px;margin-top:14px;max-width:280px;}
+  .footer-col h4{color:#fff;font-size:12px;margin-bottom:16px;font-family:'JetBrains Mono',monospace;letter-spacing:0.08em;text-transform:uppercase;}
+  .footer-col a, .footer-col span{display:block;font-size:14px;color:var(--muted-dark);margin-bottom:11px;}
+  .footer-col a:hover{color:var(--gold-soft);}
+  .footer-areas{padding:26px 0;font-size:13px;color:var(--muted-dark);line-height:1.9;border-bottom:1px solid rgba(255,255,255,0.08);}
+  .footer-areas b{color:#fff;font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:0.06em;text-transform:uppercase;display:block;margin-bottom:10px;}
+  .footer-bottom{display:flex;justify-content:space-between;padding-top:24px;font-size:12.5px;flex-wrap:wrap;gap:10px;}
+
+  .reveal{opacity:0;transform:translateY(24px);transition:opacity .7s ease, transform .7s ease;}
+
+  /* Survey modal */
+  .survey-modal-backdrop{position:fixed;inset:0;z-index:300;background:rgba(4,20,15,0.6);backdrop-filter:blur(4px);display:flex;align-items:center;justify-content:center;padding:20px;opacity:0;pointer-events:none;transition:opacity .25s ease;}
+  .survey-modal-backdrop.open{opacity:1;pointer-events:auto;}
+  .survey-modal{background:#fff;border-radius:22px;max-width:440px;width:100%;padding:32px;max-height:90vh;overflow-y:auto;transform:translateY(16px);transition:transform .25s ease;}
+  .survey-modal-backdrop.open .survey-modal{transform:translateY(0);}
+  .survey-modal-head{display:flex;justify-content:space-between;align-items:flex-start;}
+  .survey-close{background:var(--paper-dim);border:none;width:32px;height:32px;border-radius:50%;font-size:14px;color:var(--ink);cursor:pointer;flex-shrink:0;}
+  .survey-modal h3{font-size:22px;margin-bottom:22px;line-height:1.25;}
+  .survey-field{margin-bottom:16px;}
+  .survey-field label{display:block;font-size:12.5px;color:var(--muted);margin-bottom:7px;font-weight:600;}
+  .survey-field input{width:100%;border:1px solid var(--line);border-radius:10px;padding:12px 14px;font-family:'Inter',sans-serif;font-size:14.5px;color:var(--ink);outline:none;transition:border-color .2s ease;}
+  .survey-field input:focus{border-color:var(--sky);}
+  .survey-prefixed{display:flex;align-items:center;border:1px solid var(--line);border-radius:10px;overflow:hidden;}
+  .survey-prefixed span{padding:12px 12px 12px 14px;color:var(--muted);font-size:14.5px;}
+  .survey-prefixed input{border:none;padding-left:0;flex:1;}
+  .survey-prefixed:focus-within{border-color:var(--sky);}
+  .survey-fine-print{font-size:11.5px;color:var(--muted);text-align:center;margin-top:14px;line-height:1.6;}
+  .survey-success{display:none;text-align:center;padding:10px 0 4px;}
+  .survey-success.show{display:block;}
+  .survey-success-icon{width:52px;height:52px;border-radius:50%;background:rgba(23,179,163,0.12);color:var(--sky);display:flex;align-items:center;justify-content:center;margin:0 auto 18px;}
+  .survey-success-icon svg{width:24px;height:24px;}
+  .survey-success h3{margin-bottom:8px;}
+  .survey-success p{font-size:14px;margin-bottom:22px;}
+  @media (max-width:480px){ .survey-modal{padding:26px 22px;} }
+  .reveal.in{opacity:1;transform:translateY(0);}
+
+  @media (max-width:1080px){
+    .why-grid{grid-template-columns:repeat(2,1fr);}
+    .seg-grid,.testi-grid,.gallery-grid{grid-template-columns:repeat(2,1fr);}
+    .process-grid{grid-template-columns:repeat(2,1fr);}
+    .calc-grid,.monitor-grid,.subsidy-grid,.assurance-panel{grid-template-columns:1fr;}
+    .footer-top{grid-template-columns:1fr 1fr;row-gap:32px;}
+    .compare-table{display:block;overflow-x:auto;}
+  }
+  @media (max-width:760px){
+    .nav-links,.nav-right{display:none;}
+    .menu-btn{display:block;}
+    .brand-logo-img{width:145px;height:48px;}
+    .wrap{padding:0 20px;}
+    .hero{padding-top:130px;}
+    section, .segments, .why, .process, .testi, .monitor, .subsidy, .faq{padding-top:70px;padding-bottom:70px;}
+    .seg-grid,.why-grid,.testi-grid,.gallery-grid,.process-grid{grid-template-columns:1fr;}
+    .assurance-panel, .final-panel{padding:36px 24px;}
+    .footer-top{grid-template-columns:1fr;}
+    section{text-align:center;}
+    .section-head{margin-left:auto;margin-right:auto;text-align:center;}
+    .eyebrow{justify-content:center;}
+    .hero-inner{margin:0 auto;text-align:center;}
+    .hero p.lead{margin-left:auto;margin-right:auto;}
+    .hero-cta,.hero-bullets,.filter-tabs,.faq-cats{justify-content:center;}
+    .hero-cta .btn{flex:1 1 220px;max-width:300px;}
+    .hero-bullets span{justify-content:center;}
+    .seg-card{text-align:center;align-items:center;min-height:430px;}
+    .why-layout{grid-template-columns:1fr;}
+    .why-photo{max-width:460px;width:100%;margin:0 auto;}
+    .why-card,.process-card,.testi-body{text-align:center;}
+    .why-icon,.process-num{margin-left:auto;margin-right:auto;}
+    .calc-grid,.monitor-grid,.subsidy-grid{gap:36px;}
+    .calc-grid>div,.monitor-grid>div,.subsidy-grid>div,.assurance-panel>div{width:100%;margin-left:auto;margin-right:auto;}
+    .calc-panel,.calc-result,.cert-card,.subsidy-table,.compare-table{text-align:left;}
+    .calc-note,.phone-stat{text-align:center;}
+    .monitor .section-head,.monitor ul{margin-left:auto;margin-right:auto;}
+    .monitor ul{max-width:500px;}
+    .monitor ul li,.cert-list li{justify-content:center;text-align:left;}
+    .assurance-panel p,.process-banner span{margin-left:auto;margin-right:auto;}
+    .cert-card{max-width:520px;margin-left:auto;margin-right:auto;}
+    .subsidy-grid>div:first-child{text-align:center;}
+    .subsidy-steps{max-width:520px;margin-left:auto;margin-right:auto;text-align:left;}
+    .faq-list{margin-left:auto;margin-right:auto;}
+    .faq-q{text-align:center;justify-content:center;}
+    .faq-q .plus{position:absolute;right:20px;}
+    .faq-q{position:relative;padding-left:52px;padding-right:52px;}
+    .faq-a p{margin-left:auto;margin-right:auto;text-align:center;}
+    .filter-tabs,.faq-cats,.press-row{align-items:center;}
+    .gallery-item .tag{left:50%;transform:translateX(-50%);white-space:nowrap;}
+    .testi-nums{justify-content:center;}
+    .process-banner{justify-content:center;text-align:center;}
+    .final-panel p{margin-left:auto;margin-right:auto;}
+    .footer-top{text-align:center;}
+    .footer-brand .brand{justify-content:center;}
+    .footer-col a{display:block;width:max-content;max-width:100%;margin-left:auto;margin-right:auto;}
+    .footer-bottom{justify-content:center;text-align:center;flex-wrap:wrap;}
+  }
+  @media (max-width:480px){
+    .wrap{padding-left:18px;padding-right:18px;}
+    .hero{padding-bottom:72px;}
+    .hero-cta{flex-direction:column;align-items:center;}
+    .hero-cta .btn{width:100%;flex-basis:auto;}
+    .hero-bullets{flex-direction:column;align-items:center;}
+    .hero-bullets span{width:100%;max-width:330px;}
+    .calc-panel,.calc-result{padding:26px 20px;}
+    .assurance-panel,.final-panel{padding:32px 20px;}
+    .subsidy-table{overflow-x:auto;}
+    .subsidy-table table{min-width:430px;}
+    .compare-table{white-space:nowrap;}
+  }
+</style>
+</head>
+<body>
+
+<header id="siteHeader">
+  <div class="wrap">
+    <nav>
+      <a href="#top" class="brand">
+        <img src="logo.png" alt="Jibsolar logo" class="brand-logo-img" onerror="this.style.display='none';this.nextElementSibling.style.setProperty('display','block','important')">
+        <span class="brand-fallback">Jibsolar</span>
+      </a>
+      <div class="nav-links">
+        <a href="#homes">For Homes</a>
+        <a href="#process">How it works</a>
+        <a href="#calculator">Savings</a>
+        <a href="#faq">FAQ</a>
+      </div>
+      <div class="nav-right">
+        <a href="#calculator" class="btn-outline-small">Estimate savings</a>
+        <a href="#" class="btn btn-primary js-open-survey">Book free survey</a>
+      </div>
+      <button class="menu-btn" id="menuBtn" aria-label="Menu">☰</button>
+    </nav>
+  </div>
+</header>
+
+<div class="mobile-panel" id="mobilePanel">
+  <a href="#homes" class="mnav">For Homes</a>
+  <a href="#process" class="mnav">How it works</a>
+  <a href="#calculator" class="mnav">Savings</a>
+  <a href="#faq" class="mnav">FAQ</a>
+  <a href="#" class="btn btn-primary mnav js-open-survey">Book free survey</a>
+</div>
+
+<section class="hero" id="top">
+  <div class="hero-photo" style="background-image:url('https://images.unsplash.com/photo-1756232973381-5ed87773a908?q=80&amp;w=1600&amp;auto=format&amp;fit=crop');"></div>
+  <div class="wrap hero-inner">
+    <span class="eyebrow" style="color:var(--gold-soft);">Rooftop solar across India</span>
+    <h1>Your roof can pay <em>your electricity bill.</em></h1>
+    <p class="lead">We size the system, file the paperwork, put panels on the roof, and stay on call after — so switching to solar doesn't turn into a second job for you.</p>
+    <div class="hero-cta">
+      <a href="#" class="btn btn-primary js-open-survey">Book a free site survey →</a>
+      <a href="#calculator" class="btn btn-ghost-dark">Estimate my savings</a>
+    </div>
+    <div class="hero-bullets">
+      <span>Bill-based estimates</span>
+      <span>PM Surya Ghar support</span>
+      <span>25-year panel warranty</span>
+      <span>Serving homes &amp; businesses across India</span>
+    </div>
+  </div>
+</section>
+
+<section class="segments" id="homes">
+  <div class="wrap">
+    <div class="section-head reveal">
+      <span class="eyebrow">Who we power</span>
+      <h2>Built for every Indian roof.</h2>
+      <p>Whichever path fits you, it ends the same way — a site-specific design, a clear number, and a free survey.</p>
+    </div>
+    <div class="seg-grid">
+      <div class="seg-card reveal" style="background-image:url('https://images.unsplash.com/photo-1745187946672-2c1d8cf26a2b?q=80&amp;w=900&amp;auto=format&amp;fit=crop');">
+        <h3>Homes</h3>
+        <p>Cut monthly bills for houses and independent homes anywhere in India.</p>
+        <a href="#contact">Book a home survey →</a>
+      </div>
+      <div class="seg-card reveal" style="background-image:url('https://images.unsplash.com/photo-1757125505346-2d71c70e6003?q=80&amp;w=900&amp;auto=format&amp;fit=crop');">
+        <h3>Housing societies</h3>
+        <p>Bring down common-area electricity costs for apartments and gated communities.</p>
+        <a href="#contact">Book a society survey →</a>
+      </div>
+      <div class="seg-card reveal" style="background-image:url('https://images.unsplash.com/photo-1745015446589-7ee6f702d8c1?q=80&amp;w=900&amp;auto=format&amp;fit=crop');">
+        <h3>Businesses</h3>
+        <p>Stabilize operating costs for shops, offices, and small commercial loads.</p>
+        <a href="#contact">Book a business survey →</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="calc-section" id="calculator">
+  <div class="wrap">
+    <div class="section-head light-on-dark reveal">
+      <span class="eyebrow">Savings calculator</span>
+      <h2>See what your roof could save.</h2>
+      <p>A quick national estimate based on your bill. Your exact number is confirmed after a free rooftop survey.</p>
+    </div>
+    <div class="calc-grid">
+      <div class="calc-panel reveal">
+        <div class="calc-field">
+          <label>Segment</label>
+          <div class="seg-toggle" id="segToggle">
+            <button class="active" data-seg="home">Home</button>
+            <button data-seg="society">Society</button>
+            <button data-seg="business">Business</button>
+          </div>
+        </div>
+        <div class="calc-field">
+          <label>Average monthly electricity bill <b id="billVal">₹3,000</b></label>
+          <input type="range" id="billSlider" min="500" max="60000" step="100" value="3000">
+          <div class="range-minmax"><span>₹500</span><span>₹60,000</span></div>
+        </div>
+        <div class="calc-field">
+          <label>Sanctioned / contracted load <b id="loadVal">3.0 kW</b></label>
+          <input type="range" id="loadSlider" min="1" max="15" step="0.5" value="3">
+          <div class="range-minmax"><span>1 kW</span><span>15 kW</span></div>
+        </div>
+        <p class="calc-note" style="margin-top:6px;">Find these on your latest electricity bill — average monthly amount and sanctioned/contracted load.</p>
+      </div>
+      <div class="calc-result reveal">
+        <div class="result-row"><span>Your current monthly bill</span><b id="currentBill">₹0</b></div>
+        <div class="result-row"><span>Recommended system size</span><b id="sysSize">0 kW</b></div>
+        <div class="result-row"><span>Estimated bill after solar</span><b id="afterBill">₹0</b></div>
+        <div class="result-row"><span>Monthly savings</span><b class="hl" id="monthlySave">₹0</b></div>
+        <div class="result-row"><span>Estimated annual savings</span><b id="annualSave">₹0</b></div>
+        <div class="result-row"><span>Indicative PM Surya Ghar subsidy</span><b id="subsidyAmt">₹0</b></div>
+        <p class="calc-note">A simplified national estimate — assumes a blended per-unit tariff by segment and ~4.3 average peak-sun-hours/day. Actual electricity tariffs are set state-by-state and vary a fair amount, so treat this as a starting point, not a quote. Your free survey confirms the real number for your address and DISCOM.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="why">
+  <div class="wrap">
+    <div class="section-head reveal">
+      <span class="eyebrow">Why Jibsolar</span>
+      <h2>Solar, without the usual headaches.</h2>
+      <p>Clarity on design, paperwork, performance, and after-care — so going solar feels calm, not complicated.</p>
+    </div>
+    <div class="why-layout">
+      <div class="why-photo reveal" style="background-image:url('https://images.unsplash.com/photo-1756232973381-5ed87773a908?q=80&amp;w=900&amp;auto=format&amp;fit=crop');">
+        <div class="why-photo-badge"><b>~4.3 hrs</b><span>Average peak-sun hours per day across India</span></div>
+      </div>
+      <div class="why-grid">
+        <div class="why-card reveal">
+          <div class="why-icon"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 17l6-6 4 4 8-8"/><path d="M15 6h6v6"/></svg></div>
+          <h3>A single point of contact</h3>
+          <p>Survey through net-metering with your local DISCOM — handled entirely by us.</p>
+        </div>
+        <div class="why-card reveal">
+          <div class="why-icon"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg></div>
+          <h3>Numbers pulled from the tariff order</h3>
+          <p>Estimates built from your real electricity bill, not a generic brochure number.</p>
+        </div>
+        <div class="why-card reveal">
+          <div class="why-icon"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2l2.4 6.6L21 11l-6.6 2.4L12 20l-2.4-6.6L3 11l6.6-2.4z"/></svg></div>
+          <h3>Designed around local sun hours</h3>
+          <p>Designs sized for local irradiance, roof types, and summer peak generation.</p>
+        </div>
+        <div class="why-card reveal">
+          <div class="why-icon"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20l4-10 4 6 3-4 5 8"/></svg></div>
+          <h3>We stay on after install</h3>
+          <p>Monitoring and maintenance so year ten still generates like year one.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="assurance">
+  <div class="wrap">
+    <div class="assurance-panel reveal">
+      <div>
+        <span class="eyebrow" style="color:var(--gold-soft);">The Jibsolar guarantee</span>
+        <h2>We put our output estimate on paper.</h2>
+        <p>If your system underperforms against the agreed generation band in the first 12 months, we make it right — service first, compensation if it's still needed.</p>
+        <a href="#contact" class="btn btn-primary">Get Assurance on my quote</a>
+      </div>
+      <div class="cert-card">
+        <h4>Assurance certificate — issued with every approved design</h4>
+        <ul class="cert-list">
+          <li><svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg>Written generation band for year one</li>
+          <li><svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg>Free corrective visits if output drifts</li>
+          <li><svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg>Real-time monitoring included</li>
+          <li><svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg>Repair cover inside your care plan</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="process" id="process">
+  <div class="wrap">
+    <div class="section-head reveal">
+      <span class="eyebrow">How it works</span>
+      <h2>Four steps, one team, zero runaround.</h2>
+      <p>A calm path from first conversation to live generation — no chasing vendors across five WhatsApp groups.</p>
+    </div>
+    <div class="process-grid">
+      <div class="process-card reveal"><div class="process-num">01</div><div class="process-line"></div><h3>Survey</h3><p>On-site roof, load, and shadow mapping at your address.</p></div>
+      <div class="process-card reveal"><div class="process-num">02</div><div class="process-line"></div><h3>Design</h3><p>A site-specific layout with a clear, itemized quote.</p></div>
+      <div class="process-card reveal"><div class="process-num">03</div><div class="process-line"></div><h3>Install &amp; subsidy</h3><p>Clean install plus PM Surya Ghar paperwork support where eligible.</p></div>
+      <div class="process-card reveal"><h3 class="process-num" style="border-radius:50%;font-size:13px;">04</h3><h3>Live &amp; maintain</h3><p>System online, net-metered, with monitoring and care staying with us.</p></div>
+    </div>
+    <div class="process-banner reveal" style="background-image:linear-gradient(0deg, rgba(4,20,15,0.85), rgba(4,20,15,0.15)), url('https://images.unsplash.com/photo-1745187946672-2c1d8cf26a2b?q=80&amp;w=1600&amp;auto=format&amp;fit=crop');">
+      <span>Every step, tracked end to end — right up to your first day on solar.</span>
+    </div>
+  </div>
+</section>
+
+<section class="testi">
+  <div class="wrap">
+    <div class="section-head reveal">
+      <span class="eyebrow">Rooftops across India</span>
+      <h2>What early rooftops are telling us.</h2>
+      <p>These are illustrative example profiles, not verified customers yet — swap in real names, photos, and numbers as soon as you have them.</p>
+    </div>
+    <div class="testi-grid">
+      <div class="testi-card reveal">
+        <div class="testi-photo" role="img" aria-label="Model home representing a residential rooftop solar project" style="background-image:url('https://images.unsplash.com/photo-1560518883-ce09059eeffa?q=80&amp;w=700&amp;auto=format&amp;fit=crop');"></div>
+        <div class="testi-body">
+          <span class="testi-loc">Bengaluru · 5 kW</span>
+          <p class="testi-quote">The team walked me through the subsidy paperwork step by step — I didn't have to figure out a single government form on my own.</p>
+          <div class="testi-nums">
+            <div class="before"><span>Before</span><b>₹3,400</b></div>
+            <div class="after"><span>After</span><b>₹740</b></div>
+          </div>
+        </div>
+      </div>
+      <div class="testi-card reveal">
+        <div class="testi-photo" role="img" aria-label="Modern home representing a residential rooftop solar project" style="background-image:url('https://images.unsplash.com/photo-1600566753086-00f18fb6b3ea?q=80&amp;w=700&amp;auto=format&amp;fit=crop');"></div>
+        <div class="testi-body">
+          <span class="testi-loc">Pune · 4 kW</span>
+          <p class="testi-quote">Install was done in a day and a half. Six months in, the monitoring app still shows exactly what they promised at the survey.</p>
+          <div class="testi-nums">
+            <div class="before"><span>Before</span><b>₹2,850</b></div>
+            <div class="after"><span>After</span><b>₹610</b></div>
+          </div>
+        </div>
+      </div>
+      <div class="testi-card reveal">
+        <div class="testi-photo" role="img" aria-label="Commercial buildings representing a society rooftop solar project" style="background-image:url('https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?q=80&amp;w=700&amp;auto=format&amp;fit=crop');"></div>
+        <div class="testi-body">
+          <span class="testi-loc">Ahmedabad · 36 kW · Society Secretary</span>
+          <p class="testi-quote">Getting 40 committee members to agree on anything is hard. The clear cost breakdown upfront made this an easy yes for our society.</p>
+          <div class="testi-nums">
+            <div class="before"><span>Before</span><b>₹31,000</b></div>
+            <div class="after"><span>After</span><b>₹8,200</b></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="gallery">
+  <div class="wrap">
+    <div class="section-head reveal">
+      <span class="eyebrow">Installs</span>
+      <h2>Placeholder gallery — swap for real project photos.</h2>
+      <p>These images are Unsplash stock placeholders standing in for real installation photography.</p>
+    </div>
+    <div class="filter-tabs" id="galleryFilters">
+      <button class="active" data-filter="all">All</button>
+      <button data-filter="home">Home</button>
+      <button data-filter="society">Society</button>
+      <button data-filter="business">Business</button>
+    </div>
+    <div class="gallery-grid" id="galleryGrid">
+      <div class="gallery-item" data-cat="home" style="background-image:url('https://images.unsplash.com/photo-1745187946672-2c1d8cf26a2b?q=80&amp;w=900&amp;auto=format&amp;fit=crop');"><span class="tag">Bengaluru · 6 kW · Home</span></div>
+      <div class="gallery-item" data-cat="home" style="background-image:url('https://images.unsplash.com/photo-1756232973381-5ed87773a908?q=80&amp;w=900&amp;auto=format&amp;fit=crop');"><span class="tag">Ahmedabad · 3 kW · Home</span></div>
+      <div class="gallery-item" data-cat="society" style="background-image:url('https://images.unsplash.com/photo-1757125505346-2d71c70e6003?q=80&amp;w=900&amp;auto=format&amp;fit=crop');"><span class="tag">Pune · 42 kW · Society</span></div>
+      <div class="gallery-item" data-cat="business" style="background-image:url('https://images.unsplash.com/photo-1745015446589-7ee6f702d8c1?q=80&amp;w=900&amp;auto=format&amp;fit=crop');"><span class="tag">Jaipur · 15 kW · Business</span></div>
+      <div class="gallery-item" data-cat="home" style="background-image:url('https://images.unsplash.com/photo-1745187946672-2c1d8cf26a2b?q=80&amp;w=900&amp;auto=format&amp;fit=crop');"><span class="tag">Hyderabad · 7 kW · Home</span></div>
+      <div class="gallery-item" data-cat="business" style="background-image:url('https://images.unsplash.com/photo-1745015446589-7ee6f702d8c1?q=80&amp;w=900&amp;auto=format&amp;fit=crop');"><span class="tag">Chennai · 22 kW · Business</span></div>
+    </div>
+  </div>
+</section>
+
+<section class="monitor">
+  <div class="wrap">
+    <div class="monitor-grid">
+      <div class="light-on-dark reveal">
+        <span class="eyebrow" style="color:var(--gold-soft);">Jibsolar Monitor</span>
+        <h2>Know what your roof earned today.</h2>
+        <p>Live generation, savings trend, and service requests — on your phone.</p>
+        <ul>
+          <li><svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg>Track generation wherever you are</li>
+          <li><svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg>See savings trends, not just raw units</li>
+          <li><svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg>Raise a service request in a few taps</li>
+        </ul>
+      </div>
+      <div class="phone-mock reveal">
+        <div class="phone-head"><span>Jibsolar Monitor</span><span>Today</span></div>
+        <div class="phone-stat"><b>24.6 kWh</b><span>Generation</span></div>
+        <div class="phone-row"><span>Saved today</span><b>₹186</b></div>
+        <div class="phone-row"><span>Month to date</span><b>₹4,820</b></div>
+        <div class="phone-row"><span>Service requests</span><b>0 open</b></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="subsidy">
+  <div class="wrap">
+    <div class="subsidy-grid">
+      <div class="reveal">
+        <span class="eyebrow">PM Surya Ghar</span>
+        <h2>Go solar without a lump-sum shock.</h2>
+        <p>Central subsidy support up to ₹78,000 where eligible for Indian homes, plus flexible EMI so bill savings can help cover installments.</p>
+        <div class="subsidy-steps">
+          <div class="subsidy-step"><div class="n">01</div><div><h4>Check eligibility</h4><p>Home segment, bill band, and roof readiness.</p></div></div>
+          <div class="subsidy-step"><div class="n">02</div><div><h4>Subsidy support</h4><p>We handle PM Surya Ghar paperwork with you.</p></div></div>
+          <div class="subsidy-step"><div class="n">03</div><div><h4>EMI options</h4><p>Structure payments so bill savings can offset EMIs.</p></div></div>
+        </div>
+      </div>
+      <div class="subsidy-table reveal">
+        <table>
+          <thead><tr><th>System size</th><th>Indicative subsidy</th></tr></thead>
+          <tbody>
+            <tr><td>1 kW</td><td><b>₹30,000</b></td></tr>
+            <tr><td>2 kW</td><td><b>₹60,000</b></td></tr>
+            <tr><td>3 kW and above</td><td><b>₹78,000</b></td></tr>
+          </tbody>
+        </table>
+        <div class="subsidy-foot">Subject to current PM Surya Ghar scheme rules and eligibility. <a href="#contact" style="color:var(--forest-800);font-weight:600;">Check my subsidy eligibility →</a></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="compare">
+  <div class="wrap">
+    <div class="section-head reveal">
+      <span class="eyebrow">Compare</span>
+      <h2>Not every "solar company" works the same way.</h2>
+      <p>A clear side-by-side so you can choose on substance, not brochure language.</p>
+    </div>
+    <table class="compare-table reveal">
+      <thead><tr><th>Capability</th><th>Typical contractor</th><th>Big brand reseller</th><th class="hl">Jibsolar</th></tr></thead>
+      <tbody>
+        <tr><td>Design ownership</td><td>Subcontracted</td><td>Template layouts</td><td class="hl">Site-specific for your roof</td></tr>
+        <tr><td>DISCOM / subsidy filing</td><td>You chase the paperwork</td><td>Partial support</td><td class="hl">End-to-end filing support</td></tr>
+        <tr><td>Monitoring</td><td>Optional / unclear</td><td>Basic app</td><td class="hl">Live savings + service requests</td></tr>
+        <tr><td>Maintenance</td><td>Call-and-wait</td><td>Paid AMC later</td><td class="hl">Proactive care plan</td></tr>
+        <tr><td>Performance promise</td><td>Verbal estimate</td><td>Brochure claim</td><td class="hl">Written generation band</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<section class="press">
+  <div class="wrap">
+    <div class="press-label">Press &amp; certifications — placeholder, replace with real logos/names</div>
+    <div class="press-row">
+      <span>Vikarabad Times</span><span>Nizamabad Business Digest</span><span>Southern Energy Weekly</span><span>Deccan Rooftop Journal</span>
+    </div>
+  </div>
+</section>
+
+<section class="faq" id="faq">
+  <div class="wrap">
+    <div class="section-head reveal">
+      <span class="eyebrow">Questions, answered clearly</span>
+      <h2>What Indian homeowners ask before booking.</h2>
+    </div>
+    <div class="faq-cats" id="faqCats">
+      <button class="active" data-cat="all">All</button>
+      <button data-cat="fit">Fit</button>
+      <button data-cat="process">Process</button>
+      <button data-cat="money">Money</button>
+    </div>
+    <div class="faq-list" id="faqList">
+      <div class="faq-item open" data-cat="fit">
+        <button class="faq-q"><span>Is my electricity bill high enough for solar?</span><span class="plus"></span></button>
+        <div class="faq-a"><p>If your average monthly bill is around ₹1,500 or more, rooftop solar usually makes strong sense. Lower bills are still worth a free assessment — we'll tell you honestly if it doesn't pay off yet.</p></div>
+      </div>
+      <div class="faq-item" data-cat="fit">
+        <button class="faq-q"><span>Which parts of India do you serve?</span><span class="plus"></span></button>
+        <div class="faq-a"><p>We're expanding city by city across India. See the service area list in the footer, or ask us directly about your town.</p></div>
+      </div>
+      <div class="faq-item" data-cat="process">
+        <button class="faq-q"><span>How long does installation take?</span><span class="plus"></span></button>
+        <div class="faq-a"><p>Most home systems are installed within a few days once the design and subsidy paperwork are finalized. Exact timing depends on system size and roof access.</p></div>
+      </div>
+      <div class="faq-item" data-cat="process">
+        <button class="faq-q"><span>Who handles the government subsidy?</span><span class="plus"></span></button>
+        <div class="faq-a"><p>We prepare and file the PM Surya Ghar paperwork with you, so you're not managing forms and portals alone.</p></div>
+      </div>
+      <div class="faq-item" data-cat="money">
+        <button class="faq-q"><span>What does payback usually look like?</span><span class="plus"></span></button>
+        <div class="faq-a"><p>It depends on your bill size and system cost — the calculator above gives an estimate, and your survey gives an exact number before you commit to anything.</p></div>
+      </div>
+      <div class="faq-item" data-cat="money">
+        <button class="faq-q"><span>Will solar work during a power cut?</span><span class="plus"></span></button>
+        <div class="faq-a"><p>A standard grid-tied system shuts off during outages for safety. Battery backup options are available if you want power during cuts too — ask us during your survey.</p></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="final-cta" id="contact">
+  <div class="wrap">
+    <div class="final-panel reveal">
+      <span class="eyebrow" style="color:var(--gold-soft);justify-content:center;">Rooftop solar, nationwide</span>
+      <h2>See what your roof can actually save.</h2>
+      <p>Book a free survey. Get a clear design and number before you spend a rupee.</p>
+      <div class="final-actions">
+        <a href="#" class="btn btn-primary js-open-survey">Book free survey</a>
+        <a href="#calculator" class="btn btn-ghost-dark">Estimate savings first</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    <div class="footer-top">
+      <div class="footer-brand">
+        <a href="#top" class="brand">
+          <img src="logo.png" alt="Jibsolar logo" class="brand-logo-img brand-logo-img-footer" onerror="this.style.display='none';this.nextElementSibling.style.setProperty('display','block','important')">
+          <span class="brand-fallback">Jibsolar</span>
+        </a>
+        <p>Rooftop solar across India — quietly reliable, end to end.</p>
+      </div>
+      <div class="footer-col">
+        <h4>Offerings</h4>
+        <a href="#calculator">Savings calculator</a>
+        <a href="#process">How it works</a>
+      </div>
+      <div class="footer-col">
+        <h4>Support</h4>
+        <a href="#faq">FAQ</a>
+        <a href="#">Privacy — placeholder</a>
+        <a href="#">Terms — placeholder</a>
+      </div>
+      <div class="footer-col">
+        <h4>Contact — placeholder</h4>
+        <span>hello@jibsolar.com</span>
+        <span>+91 00000 00000</span>
+      </div>
+    </div>
+    <div class="footer-areas">
+      <b>Areas we serve</b>
+      Currently active in Hyderabad, Bengaluru, Pune, and Ahmedabad — expanding to more Indian cities every quarter.
+    </div>
+    <div class="footer-bottom">
+      <span>© 2026 Jibsolar. All rights reserved.</span>
+      <span>DISCOM-ready installs · PM Surya Ghar support</span>
+    </div>
+  </div>
+</footer>
+
+<div class="survey-modal-backdrop" id="surveyBackdrop">
+  <div class="survey-modal" role="dialog" aria-modal="true" aria-labelledby="surveyModalTitle">
+    <div class="survey-modal-head">
+      <span class="eyebrow" style="margin-bottom:6px;">Free site survey</span>
+      <button class="survey-close" id="surveyClose" aria-label="Close">✕</button>
+    </div>
+    <h3 id="surveyModalTitle">Let's get a surveyor to your roof.</h3>
+    <form id="surveyForm">
+      <div class="survey-field">
+        <label for="svName">Name</label>
+        <input type="text" id="svName" placeholder="Your full name" required>
+      </div>
+      <div class="survey-field">
+        <label for="svPhone">Mobile number</label>
+        <input type="tel" id="svPhone" placeholder="10-digit mobile number" required>
+      </div>
+      <div class="survey-field">
+        <label for="svCity">City</label>
+        <input type="text" id="svCity" placeholder="Your city" required>
+      </div>
+      <div class="survey-field">
+        <label for="svBill">Monthly power bill</label>
+        <div class="survey-prefixed"><span>₹</span><input type="number" id="svBill" placeholder="e.g. 3200"></div>
+      </div>
+      <button type="submit" class="btn btn-primary btn-block">Book my free survey</button>
+      <p class="survey-fine-print">We'll call or WhatsApp within a business day to lock in a time — no spam, no auto-dialers.</p>
+    </form>
+    <div class="survey-success" id="surveySuccess">
+      <div class="survey-success-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg></div>
+      <h3>You're on the list.</h3>
+      <p>Someone from Jibsolar will reach out shortly to schedule your survey.</p>
+      <button type="button" class="btn btn-ghost-light" id="surveyDone">Close</button>
+    </div>
+  </div>
+</div>
+
+<script>
+  // Header scroll + mobile menu
+  const header = document.getElementById('siteHeader');
+  window.addEventListener('scroll', () => header.classList.toggle('scrolled', window.scrollY > 20));
+  const menuBtn = document.getElementById('menuBtn');
+  const mobilePanel = document.getElementById('mobilePanel');
+  menuBtn.addEventListener('click', () => mobilePanel.classList.toggle('open'));
+  document.querySelectorAll('.mnav').forEach(a => a.addEventListener('click', () => mobilePanel.classList.remove('open')));
+
+  // Reveal on scroll
+  const revealEls = document.querySelectorAll('.reveal');
+  const io = new IntersectionObserver((entries) => {
+    entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('in'); io.unobserve(e.target); } });
+  }, { threshold: 0.15 });
+  revealEls.forEach(el => io.observe(el));
+
+
+
+  // ---- Savings calculator: simplified national estimate (blended tariff by segment) ----
+  const RATE_BY_SEGMENT = { home: 7, society: 8, business: 9.5 }; // ₹/unit, blended national estimate
+  function subsidyFor(kw){
+    if (kw < 1.5) return 30000;
+    if (kw < 2.5) return 60000;
+    return 78000;
+  }
+  const billSlider = document.getElementById('billSlider');
+  const loadSlider = document.getElementById('loadSlider');
+  const billVal = document.getElementById('billVal');
+  const loadVal = document.getElementById('loadVal');
+  const currentBillEl = document.getElementById('currentBill');
+  const sysSizeEl = document.getElementById('sysSize');
+  const afterBillEl = document.getElementById('afterBill');
+  const monthlySaveEl = document.getElementById('monthlySave');
+  const annualSaveEl = document.getElementById('annualSave');
+  const subsidyAmtEl = document.getElementById('subsidyAmt');
+  const inr = n => '₹' + Math.round(n).toLocaleString('en-IN');
+  let activeSegment = 'home';
+
+  function runCalc(){
+    const bill = parseFloat(billSlider.value);
+    const kw = parseFloat(loadSlider.value);
+    billVal.textContent = inr(bill);
+    loadVal.textContent = kw.toFixed(1) + ' kW';
+
+    const rate = RATE_BY_SEGMENT[activeSegment];
+    const impliedUnits = bill / rate;
+    const genPerKwMonth = 130; // national blended estimate, ~4.3 peak-sun-hours/day
+    let recSize = Math.max(1, Math.round((impliedUnits/genPerKwMonth)*2)/2);
+    recSize = Math.min(recSize, 15);
+    const generated = recSize * genPerKwMonth;
+    const netUnits = Math.max(0, impliedUnits - generated);
+    const afterBill = netUnits * rate;
+    const monthlySave = Math.max(0, bill - afterBill);
+
+    currentBillEl.textContent = inr(bill);
+    sysSizeEl.textContent = recSize.toFixed(1) + ' kW';
+    afterBillEl.textContent = inr(afterBill);
+    monthlySaveEl.textContent = inr(monthlySave);
+    annualSaveEl.textContent = inr(monthlySave*12);
+    subsidyAmtEl.textContent = inr(subsidyFor(recSize));
+  }
+  billSlider.addEventListener('input', runCalc);
+  loadSlider.addEventListener('input', runCalc);
+  document.querySelectorAll('#segToggle button').forEach(btn=>{
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('#segToggle button').forEach(b=>b.classList.remove('active'));
+      btn.classList.add('active');
+      activeSegment = btn.dataset.seg;
+      runCalc();
+    });
+  });
+  runCalc();
+
+  // Gallery filter
+  document.querySelectorAll('#galleryFilters button').forEach(btn=>{
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('#galleryFilters button').forEach(b=>b.classList.remove('active'));
+      btn.classList.add('active');
+      const filter = btn.dataset.filter;
+      document.querySelectorAll('.gallery-item').forEach(item=>{
+        item.classList.toggle('hidden', filter!=='all' && item.dataset.cat!==filter);
+      });
+    });
+  });
+
+  // FAQ accordion + category filter
+  document.querySelectorAll('.faq-q').forEach(q=>{
+    q.addEventListener('click', () => q.parentElement.classList.toggle('open'));
+  });
+  document.querySelectorAll('#faqCats button').forEach(btn=>{
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('#faqCats button').forEach(b=>b.classList.remove('active'));
+      btn.classList.add('active');
+      const cat = btn.dataset.cat;
+      document.querySelectorAll('.faq-item').forEach(item=>{
+        item.classList.toggle('hidden', cat!=='all' && item.dataset.cat!==cat);
+      });
+    });
+  });
+
+  // Survey booking modal
+  const surveyBackdrop = document.getElementById('surveyBackdrop');
+  const surveyForm = document.getElementById('surveyForm');
+  const surveySuccess = document.getElementById('surveySuccess');
+  function openSurveyModal(){
+    surveyBackdrop.classList.add('open');
+    surveyForm.style.display = '';
+    surveySuccess.classList.remove('show');
+    document.body.style.overflow = 'hidden';
+  }
+  function closeSurveyModal(){
+    surveyBackdrop.classList.remove('open');
+    document.body.style.overflow = '';
+  }
+  document.querySelectorAll('.js-open-survey').forEach(btn=>{
+    btn.addEventListener('click', (e) => { e.preventDefault(); openSurveyModal(); });
+  });
+  document.getElementById('surveyClose').addEventListener('click', closeSurveyModal);
+  document.getElementById('surveyDone').addEventListener('click', closeSurveyModal);
+  surveyBackdrop.addEventListener('click', (e) => { if(e.target === surveyBackdrop) closeSurveyModal(); });
+  document.addEventListener('keydown', (e) => { if(e.key === 'Escape' && surveyBackdrop.classList.contains('open')) closeSurveyModal(); });
+  surveyForm.addEventListener('submit', (e) => {
+    e.preventDefault();
+    // TODO: wire to the real lead endpoint (e.g. Google Sheet via Apps Script) during the React migration,
+    // same text/plain POST pattern used on the Ralsha project. For now this just confirms locally.
+    surveyForm.style.display = 'none';
+    surveySuccess.classList.add('show');
+  });
+</script>
+</body>
+</html>
