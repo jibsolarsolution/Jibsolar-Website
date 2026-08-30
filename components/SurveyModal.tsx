@@ -5,6 +5,7 @@ import { useSurveyModal } from '@/context/SurveyModalContext';
 
 export interface SurveyFormData {
   svName: string;
+  svEmail: string;
   svPhone: string;
   svCity: string;
   svBill: string;
@@ -12,7 +13,6 @@ export interface SurveyFormData {
 
 export function sanitizePhone(input: string): string {
   let text = input.trim();
-  // Strip leading +91 or 91 country code prefix if followed by non-digit or 10 digits
   if (text.startsWith('+91')) {
     text = text.slice(3);
   } else if (/^91[\s\-\.]/.test(text)) {
@@ -20,7 +20,6 @@ export function sanitizePhone(input: string): string {
   } else if (/^91\d{10}$/.test(text)) {
     text = text.slice(2);
   }
-  // Strip all non-digit characters
   const digits = text.replace(/[^\d]/g, '');
   return digits.slice(0, 10);
 }
@@ -33,29 +32,115 @@ export function isValidName(name: string): boolean {
   return name.trim().length > 0;
 }
 
+export function isValidEmail(email: string): boolean {
+  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim());
+}
+
 export function isValidCity(city: string): boolean {
   return city.trim().length > 0;
 }
 
 export function isValidBill(bill: string): boolean {
   if (bill.trim() === '') return true;
-  const num = Number(bill);
-  return !isNaN(num) && num >= 0;
+  return /^\d{1,7}$/.test(bill.trim());
 }
 
-// Isolated function for future API integration
-export async function submitSurveyLead(data: SurveyFormData): Promise<{ success: boolean }> {
-  // Local frontend implementation only — ready for real API endpoint hook
-  return Promise.resolve({ success: true });
+export function getTrackingParams(): Record<string, string> {
+  if (typeof window === 'undefined') return {};
+  const params = new URLSearchParams(window.location.search);
+  const allowlist = [
+    'utm_source', 'utm_medium', 'utm_campaign', 'utm_content', 'utm_term',
+    'platform', 'gclid', 'fbclid', 'fbp', 'fbc', 'matchtype', 'network',
+    'device', 'keyword', 'placement', 'campaignid', 'adgroupid'
+  ];
+  const tracking: Record<string, string> = {};
+  for (const key of allowlist) {
+    const val = params.get(key);
+    if (val && val.trim().length > 0) {
+      tracking[key] = val.trim().slice(0, 200);
+    }
+  }
+  return tracking;
+}
+
+export async function submitSurveyLead(data: SurveyFormData): Promise<{ success: boolean; status?: string; code?: string }> {
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), 10000);
+
+  let resolvedTimezone = 'Asia/Kolkata';
+  try {
+    resolvedTimezone = Intl.DateTimeFormat().resolvedOptions().timeZone || 'Asia/Kolkata';
+  } catch {
+    // fallback to Asia/Kolkata
+  }
+
+  const payload: Record<string, any> = {
+    name: data.svName.trim(),
+    email: data.svEmail.trim().toLowerCase(),
+    phone: data.svPhone,
+    city: data.svCity.trim(),
+    countryCode: '+91',
+    timezone: resolvedTimezone,
+    route: typeof window !== 'undefined' ? window.location.pathname || '/' : '/',
+    ...getTrackingParams(),
+  };
+
+  if (data.svBill.trim()) {
+    payload.monthlyPowerBill = data.svBill.trim();
+  }
+
+  try {
+    const response = await fetch('/api/signup', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(payload),
+      signal: controller.signal,
+    });
+
+    let resData: any = null;
+    try {
+      resData = await response.json();
+    } catch {
+      return { success: false, code: 'MALFORMED_RESPONSE' };
+    }
+
+    if (
+      (response.status === 200 || response.status === 201) &&
+      resData &&
+      resData.success === true &&
+      resData.data &&
+      (resData.data.status === 'new' || resData.data.status === 'existing')
+    ) {
+      return { success: true, status: resData.data.status };
+    }
+
+    return {
+      success: false,
+      code: resData?.code || 'SERVER_ERROR',
+    };
+  } catch (err: any) {
+    if (err.name === 'AbortError') {
+      return { success: false, code: 'TIMEOUT' };
+    }
+    return { success: false, code: 'NETWORK_ERROR' };
+  } finally {
+    clearTimeout(timeoutId);
+  }
 }
 
 export default function SurveyModal() {
   const { isOpen, closeSurveyModal } = useSurveyModal();
   const [submitted, setSubmitted] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [formError, setFormError] = useState<string>('');
+
+  const isSubmittingRef = useRef<boolean>(false);
 
   const [formData, setFormData] = useState<SurveyFormData>({
     svName: '',
+    svEmail: '',
     svPhone: '',
     svCity: '',
     svBill: '',
@@ -63,6 +148,7 @@ export default function SurveyModal() {
 
   const [touched, setTouched] = useState({
     svName: false,
+    svEmail: false,
     svPhone: false,
     svCity: false,
     svBill: false,
@@ -70,12 +156,16 @@ export default function SurveyModal() {
 
   const [errors, setErrors] = useState({
     svName: '',
+    svEmail: '',
     svPhone: '',
     svCity: '',
     svBill: '',
   });
 
+  const modalRef = useRef<HTMLDivElement>(null);
+  const triggerRef = useRef<HTMLElement | null>(null);
   const nameInputRef = useRef<HTMLInputElement>(null);
+  const emailInputRef = useRef<HTMLInputElement>(null);
   const phoneInputRef = useRef<HTMLInputElement>(null);
   const cityInputRef = useRef<HTMLInputElement>(null);
   const billInputRef = useRef<HTMLInputElement>(null);
@@ -85,12 +175,14 @@ export default function SurveyModal() {
     switch (field) {
       case 'svName':
         return isValidName(value) ? '' : 'Please enter your name.';
+      case 'svEmail':
+        return isValidEmail(value) ? '' : 'Please enter a valid email address.';
       case 'svPhone':
         return isValidPhone(value) ? '' : 'Enter a valid 10-digit phone number.';
       case 'svCity':
         return isValidCity(value) ? '' : 'Please enter your city.';
       case 'svBill':
-        return isValidBill(value) ? '' : 'Enter a valid positive amount.';
+        return isValidBill(value) ? '' : 'Enter a valid bill amount (up to 7 digits).';
       default:
         return '';
     }
@@ -100,31 +192,73 @@ export default function SurveyModal() {
   useEffect(() => {
     setErrors({
       svName: touched.svName ? validateField('svName', formData.svName) : '',
+      svEmail: touched.svEmail ? validateField('svEmail', formData.svEmail) : '',
       svPhone: touched.svPhone ? validateField('svPhone', formData.svPhone) : '',
       svCity: touched.svCity ? validateField('svCity', formData.svCity) : '',
       svBill: touched.svBill ? validateField('svBill', formData.svBill) : '',
     });
   }, [formData, touched]);
 
+  // Modal open / close accessibility management
   useEffect(() => {
     if (isOpen) {
+      triggerRef.current = document.activeElement as HTMLElement;
+      document.body.style.overflow = 'hidden';
       setSubmitted(false);
       setIsSubmitting(false);
-      setFormData({ svName: '', svPhone: '', svCity: '', svBill: '' });
-      setTouched({ svName: false, svPhone: false, svCity: false, svBill: false });
-      setErrors({ svName: '', svPhone: '', svCity: '', svBill: '' });
+      isSubmittingRef.current = false;
+      setFormError('');
+      setFormData({ svName: '', svEmail: '', svPhone: '', svCity: '', svBill: '' });
+      setTouched({ svName: false, svEmail: false, svPhone: false, svCity: false, svBill: false });
+      setErrors({ svName: '', svEmail: '', svPhone: '', svCity: '', svBill: '' });
       setTimeout(() => {
         nameInputRef.current?.focus();
       }, 50);
+    } else {
+      document.body.style.overflow = '';
+      if (triggerRef.current && typeof triggerRef.current.focus === 'function') {
+        triggerRef.current.focus();
+      }
     }
+
+    return () => {
+      document.body.style.overflow = '';
+    };
   }, [isOpen]);
 
+  // Keyboard navigation: Escape key & Focus Trapping
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === 'Escape' && isOpen) {
+      if (!isOpen) return;
+
+      if (e.key === 'Escape') {
         closeSurveyModal();
+        return;
+      }
+
+      if (e.key === 'Tab' && modalRef.current) {
+        const focusables = modalRef.current.querySelectorAll<HTMLElement>(
+          'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
+        );
+        if (focusables.length === 0) return;
+
+        const firstElement = focusables[0];
+        const lastElement = focusables[focusables.length - 1];
+
+        if (e.shiftKey) {
+          if (document.activeElement === firstElement) {
+            e.preventDefault();
+            lastElement.focus();
+          }
+        } else {
+          if (document.activeElement === lastElement) {
+            e.preventDefault();
+            firstElement.focus();
+          }
+        }
       }
     };
+
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [isOpen, closeSurveyModal]);
@@ -147,53 +281,96 @@ export default function SurveyModal() {
     setFormData((prev) => ({ ...prev, svPhone: sanitized }));
   };
 
+  const handleBillChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const sanitized = e.target.value.replace(/\D/g, '').slice(0, 7);
+    setFormData((prev) => ({ ...prev, svBill: sanitized }));
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    // Mark all fields touched
+    // Atomic request lock check
+    if (isSubmittingRef.current) return;
+    isSubmittingRef.current = true;
+    setIsSubmitting(true);
+
+    setFormError('');
     setTouched({
       svName: true,
+      svEmail: true,
       svPhone: true,
       svCity: true,
       svBill: true,
     });
 
     const nameErr = validateField('svName', formData.svName);
+    const emailErr = validateField('svEmail', formData.svEmail);
     const phoneErr = validateField('svPhone', formData.svPhone);
     const cityErr = validateField('svCity', formData.svCity);
     const billErr = validateField('svBill', formData.svBill);
 
     setErrors({
       svName: nameErr,
+      svEmail: emailErr,
       svPhone: phoneErr,
       svCity: cityErr,
       svBill: billErr,
     });
 
-    // Check if any field is invalid
     if (nameErr) {
       nameInputRef.current?.focus();
+      setIsSubmitting(false);
+      isSubmittingRef.current = false;
+      return;
+    }
+    if (emailErr) {
+      emailInputRef.current?.focus();
+      setIsSubmitting(false);
+      isSubmittingRef.current = false;
       return;
     }
     if (phoneErr) {
       phoneInputRef.current?.focus();
+      setIsSubmitting(false);
+      isSubmittingRef.current = false;
       return;
     }
     if (cityErr) {
       cityInputRef.current?.focus();
+      setIsSubmitting(false);
+      isSubmittingRef.current = false;
       return;
     }
     if (billErr) {
       billInputRef.current?.focus();
+      setIsSubmitting(false);
+      isSubmittingRef.current = false;
       return;
     }
 
-    setIsSubmitting(true);
     try {
-      await submitSurveyLead(formData);
-      setSubmitted(true);
+      const result = await submitSurveyLead(formData);
+      if (result.success) {
+        setSubmitted(true);
+      } else {
+        // Fixed safe UI error mapping
+        if (result.code === 'VALIDATION_ERROR') {
+          setFormError('Please check your details and try again.');
+        } else if (result.code === 'USER_ALREADY_EXISTS') {
+          setFormError('It looks like you already have an account with this email or phone number.');
+        } else if (result.code === 'TIMEOUT') {
+          setFormError('Request timed out. Please check your connection and try again.');
+        } else if (result.code === 'NETWORK_ERROR') {
+          setFormError('Network connection failed. Please check your internet and try again.');
+        } else {
+          setFormError('Something went wrong. Please check your details and try again.');
+        }
+      }
+    } catch {
+      setFormError('Something went wrong. Please check your details and try again.');
     } finally {
       setIsSubmitting(false);
+      isSubmittingRef.current = false;
     }
   };
 
@@ -211,6 +388,7 @@ export default function SurveyModal() {
     >
       <div
         className="survey-modal"
+        ref={modalRef}
         role="dialog"
         aria-modal="true"
         aria-labelledby="surveyModalTitle"
@@ -233,6 +411,27 @@ export default function SurveyModal() {
         {!submitted ? (
           <>
             <h3 id="surveyModalTitle">Let&apos;s get a surveyor to your roof.</h3>
+
+            {formError && (
+              <div
+                className="survey-form-alert"
+                role="alert"
+                aria-live="polite"
+                style={{
+                  backgroundColor: 'rgba(239, 68, 68, 0.1)',
+                  border: '1px solid rgba(239, 68, 68, 0.3)',
+                  color: '#ef4444',
+                  padding: '10px 14px',
+                  borderRadius: '8px',
+                  marginBottom: '16px',
+                  fontSize: '14px',
+                  lineHeight: '1.4',
+                }}
+              >
+                {formError}
+              </div>
+            )}
+
             <form id="surveyForm" onSubmit={handleSubmit} noValidate>
               <div className="survey-field">
                 <label htmlFor="svName">Name</label>
@@ -252,6 +451,29 @@ export default function SurveyModal() {
                 {errors.svName && (
                   <span className="survey-field-error" id="svNameError" role="alert">
                     {errors.svName}
+                  </span>
+                )}
+              </div>
+
+              <div className="survey-field">
+                <label htmlFor="svEmail">Email address</label>
+                <input
+                  type="email"
+                  id="svEmail"
+                  ref={emailInputRef}
+                  autoComplete="email"
+                  placeholder="name@example.com"
+                  required
+                  value={formData.svEmail}
+                  onChange={(e) => setFormData({ ...formData, svEmail: e.target.value })}
+                  onBlur={() => handleBlur('svEmail')}
+                  className={errors.svEmail ? 'is-invalid' : ''}
+                  aria-invalid={Boolean(errors.svEmail)}
+                  aria-describedby={errors.svEmail ? 'svEmailError' : undefined}
+                />
+                {errors.svEmail && (
+                  <span className="survey-field-error" id="svEmailError" role="alert">
+                    {errors.svEmail}
                   </span>
                 )}
               </div>
@@ -309,12 +531,13 @@ export default function SurveyModal() {
                 <div className={`survey-prefixed ${errors.svBill ? 'is-invalid' : ''}`}>
                   <span>₹</span>
                   <input
-                    type="number"
+                    type="text"
+                    inputMode="numeric"
                     id="svBill"
                     ref={billInputRef}
                     placeholder="e.g. 3200"
                     value={formData.svBill}
-                    onChange={(e) => setFormData({ ...formData, svBill: e.target.value })}
+                    onChange={handleBillChange}
                     onBlur={() => handleBlur('svBill')}
                     aria-invalid={Boolean(errors.svBill)}
                     aria-describedby={errors.svBill ? 'svBillError' : undefined}
