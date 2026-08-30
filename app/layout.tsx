@@ -3,6 +3,7 @@ import { Sora, Inter, JetBrains_Mono } from 'next/font/google';
 import './globals.css';
 import { SurveyModalProvider } from '@/context/SurveyModalContext';
 import SurveyModal from '@/components/SurveyModal';
+import UtmCapture from '@/components/UtmCapture';
 
 const sora = Sora({
   subsets: ['latin'],
@@ -49,6 +50,7 @@ export default function RootLayout({
   return (
     <html lang="en" className={`${sora.variable} ${inter.variable} ${jetbrainsMono.variable}`}>
       <body>
+        <UtmCapture />
         <SurveyModalProvider>
           {children}
           <SurveyModal />
