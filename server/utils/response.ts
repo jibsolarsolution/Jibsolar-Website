@@ -12,13 +12,13 @@ export const sendSuccess = (data: any, message = 'Success', status = 200) => {
 };
 
 export const sendError = (message = 'Error', code = 'UNKNOWN_ERROR', status = 500, errors?: any) => {
-  return NextResponse.json(
-    {
-      success: false,
-      message,
-      code,
-      errors,
-    },
-    { status }
-  );
+  const payload: Record<string, any> = {
+    success: false,
+    message,
+    code,
+  };
+  if (errors !== undefined) {
+    payload.errors = errors;
+  }
+  return NextResponse.json(payload, { status });
 };
