@@ -50,17 +50,15 @@ export class UserService {
 
     if (existingUser) {
       // Multi-Touchpoint Tracking: add new campaign and update demographics
-      logger.info(`Existing user detected (${existingUser.email || existingUser.phone}), updating demographics and adding campaign`);
+      logger.info('Existing user detected, updating lead demographics and campaign');
       await this.repository.addCampaignToUser(existingUser._id as any, campaignData, businessData, userData);
       
-      // Return the updated user object for the response
-      const updatedUser = { ...existingUser.toObject(), name: userData.name, profession: userData.profession, city: userData.city };
-      return { user: updatedUser, status: 'existing' };
+      return { status: 'existing' };
     }
 
-    logger.info(`Creating new user: ${data.email || data.phone}`);
-    const newUser = await this.repository.createUserWithCampaign(userData, campaignData, businessData);
-    return { user: newUser, status: 'new' };
+    logger.info('Processing new user lead registration');
+    await this.repository.createUserWithCampaign(userData, campaignData, businessData);
+    return { status: 'new' };
   }
 
   async getUserDetails(query: z.infer<typeof UserDetailsQuerySchema>) {
