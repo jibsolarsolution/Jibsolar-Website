@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect, useRef } from 'react';
 import { useSurveyModal } from '@/context/SurveyModalContext';
+import { getAttributionWithFallback, clearAttribution } from '@/lib/utm';
 
 export interface SurveyFormData {
   svName: string;
@@ -45,24 +46,6 @@ export function isValidBill(bill: string): boolean {
   return /^\d{1,7}$/.test(bill.trim());
 }
 
-export function getTrackingParams(): Record<string, string> {
-  if (typeof window === 'undefined') return {};
-  const params = new URLSearchParams(window.location.search);
-  const allowlist = [
-    'utm_source', 'utm_medium', 'utm_campaign', 'utm_content', 'utm_term',
-    'platform', 'gclid', 'fbclid', 'fbp', 'fbc', 'matchtype', 'network',
-    'device', 'keyword', 'placement', 'campaignid', 'adgroupid'
-  ];
-  const tracking: Record<string, string> = {};
-  for (const key of allowlist) {
-    const val = params.get(key);
-    if (val && val.trim().length > 0) {
-      tracking[key] = val.trim().slice(0, 200);
-    }
-  }
-  return tracking;
-}
-
 export async function submitSurveyLead(data: SurveyFormData): Promise<{ success: boolean; status?: string; code?: string }> {
   const controller = new AbortController();
   const timeoutId = setTimeout(() => controller.abort(), 10000);
@@ -82,7 +65,7 @@ export async function submitSurveyLead(data: SurveyFormData): Promise<{ success:
     countryCode: '+91',
     timezone: resolvedTimezone,
     route: typeof window !== 'undefined' ? window.location.pathname || '/' : '/',
-    ...getTrackingParams(),
+    ...getAttributionWithFallback(typeof window !== 'undefined' ? window.location.search : ''),
   };
 
   if (data.svBill.trim()) {
@@ -113,6 +96,7 @@ export async function submitSurveyLead(data: SurveyFormData): Promise<{ success:
       resData.data &&
       (resData.data.status === 'new' || resData.data.status === 'existing')
     ) {
+      clearAttribution();
       return { success: true, status: resData.data.status };
     }
 
